@@ -9,11 +9,6 @@ $(error "$$GOOS is not defined.")
 endif
 endif
 
-MUL_CORE := -fopenmp -D_USE_OPENMP
-ifeq ($(GOOS),darwin)
-	MUL_CORE := 
-endif	
-
 PACKAGES    := $(shell go list ./... | grep -v '/vendor/')
 BUILD_FLAGS := -ldflags "-X github.com/bytom/version.GitCommit=`git rev-parse HEAD`"
 
@@ -42,11 +37,23 @@ BYTOM_RELEASE64 := bytom-$(VERSION)-$(GOOS)_amd64
 
 all: test target release-all
 
+
+ifeq ($(GOOS),linux)
 bytomd:
 	@echo "Building bytomd to cmd/bytomd/bytomd"
-	@g++ -o mining/tensority/lib/cSimdTs.o -c mining/tensority/lib/cSimdTs.cpp -std=c++11 -pthread -mavx2 -O3 $(MUL_CORE)
+	@rm -f mining/tensority/*.go
+	@cp mining/tensority/lib/*.go mining/tensority/
+	@g++ -o mining/tensority/lib/cSimdTs.o -c mining/tensority/lib/cSimdTs.cpp -std=c++11 -pthread -mavx2 -O3 -fopenmp -D_USE_OPENMP
 	@go build -ldflags "-X github.com/bytom/version.GitCommit=`git rev-parse HEAD`" \
     -o cmd/bytomd/bytomd cmd/bytomd/main.go
+else
+bytomd:
+	@echo "Building bytomd to cmd/bytomd/bytomd"
+	@rm -f mining/tensority/*.go
+	@cp mining/tensority/legacy/*.go mining/tensority/
+	@go build -ldflags "-X github.com/bytom/version.GitCommit=`git rev-parse HEAD`" \
+    -o cmd/bytomd/bytomd cmd/bytomd/main.go
+endif
 
 target:
 	mkdir -p $@
