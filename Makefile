@@ -89,7 +89,7 @@ release-all: clean
 
 clean:
 	rm -rf target
-	rm -rf mining/tensority/lib/cSimdTs.o
+	@rm -rf mining/tensority/lib/cSimdTs.o
 
 target/$(BYTOMD_BINARY32):
 	CGO_ENABLED=0 GOARCH=386 go build $(BUILD_FLAGS) -o $@ cmd/bytomd/main.go
