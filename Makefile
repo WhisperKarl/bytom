@@ -44,15 +44,13 @@ bytomd:
 	@rm -f mining/tensority/*.go
 	@cp mining/tensority/lib/*.go mining/tensority/
 	@g++ -o mining/tensority/lib/cSimdTs.o -c mining/tensority/lib/cSimdTs.cpp -std=c++11 -pthread -mavx2 -O3 -fopenmp -D_USE_OPENMP
-	@go build -ldflags "-X github.com/bytom/version.GitCommit=`git rev-parse HEAD`" \
-    -o cmd/bytomd/bytomd cmd/bytomd/main.go
+	@go build $(BUILD_FLAGS) -o cmd/bytomd/bytomd cmd/bytomd/main.go
 else
 bytomd:
 	@echo "Building bytomd to cmd/bytomd/bytomd"
 	@rm -f mining/tensority/*.go
 	@cp mining/tensority/legacy/*.go mining/tensority/
-	@go build -ldflags "-X github.com/bytom/version.GitCommit=`git rev-parse HEAD`" \
-    -o cmd/bytomd/bytomd cmd/bytomd/main.go
+	@go build $(BUILD_FLAGS) -o cmd/bytomd/bytomd cmd/bytomd/main.go
 endif
 
 target:
